@@ -19,8 +19,6 @@ import { Movie } from "@/models/movie";
 import { MovieDetailed } from "@/models/movie_detailed";
 import { useRouter } from "expo-router";
 
-import { ArrowLeftIcon } from "lucide-react-native";
-
 const movieDetails = () => {
   const { theme } = useTheme();
   const router = useRouter();
