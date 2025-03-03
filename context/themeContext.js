@@ -14,12 +14,17 @@ export const ThemeProvider = ({ children }) => {
       const savedTheme = await AsyncStorage.getItem("theme");
       const savedUseSystem = await AsyncStorage.getItem("useSystem");
 
-      if (savedUseSystem === "true") {
+      if (savedUseSystem === false && savedTheme === null) {
         setUseSystem(true);
         setTheme(systemTheme); // Use system theme
-      } else if (savedTheme) {
-        setUseSystem(false);
-        setTheme(savedTheme);
+      } else {
+        if (savedUseSystem === "true") {
+          setUseSystem(true);
+          setTheme(systemTheme); // Use system theme
+        } else if (savedTheme) {
+          setUseSystem(false);
+          setTheme(savedTheme);
+        }
       }
     };
 
