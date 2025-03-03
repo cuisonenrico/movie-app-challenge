@@ -15,25 +15,26 @@ export default function MovieHome() {
 
   var isDarkTheme = theme === "dark";
 
+  const [page, setPage] = useState(1); // Tracks current page for pagination
   const [movies, setMovie] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchMovies = async () => {
+    try {
+      const response = await axios.get(
+        `https://www.omdbapi.com/?apikey=b9bd48a6&s=Marvel&type=movie&page=${page}`
+      );
+      setMovie((prevMovies) => [...prevMovies, ...response.data["Search"]]);
+      setPage((prevPage) => prevPage + 1); // Increase page number
+    } catch (err) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get(
-          "https://www.omdbapi.com/?apikey=b9bd48a6&s=Marvel&type=movie&page=1"
-        );
-        setMovie(response.data["Search"]);
-      } catch (err) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
+    fetchMovies();
   }, []);
 
   if (loading)
@@ -49,7 +50,11 @@ export default function MovieHome() {
   return (
     <AppSafeAreaView isDarkTheme={isDarkTheme}>
       <AppStatusBar isDarkTheme={isDarkTheme} />
-
+      {/* <AppButton
+        label="system"
+        onPress={enableSystemTheme}
+        isDarkTheme={isDarkTheme}
+      /> */}
       <FlatList
         data={movies}
         renderItem={({ item }) => <AppGridItem item={item} />}
@@ -57,6 +62,8 @@ export default function MovieHome() {
         numColumns={2} // Ensures at least 2 per row
         horizontal={false} // Restricts horizontal scrolling (default)
         scrollEnabled={true} // Ensures vertical scrolling works
+        onEndReached={fetchMovies} // Load more when reaching the bottom
+        onEndReachedThreshold={0.5} // Load when 50% of the screen remains
         ListHeaderComponent={() => (
           <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5">
             <AppText
@@ -70,17 +77,10 @@ export default function MovieHome() {
             </Link>
           </View>
         )}
+        ListFooterComponent={
+          loading ? <ActivityIndicator size="large" color="white" /> : null
+        }
       />
-      {/* <AppButton
-        label="New Buttons"
-        onPress={toggleTheme}
-        isDarkTheme={isDarkTheme}
-      />
-      <AppButton
-        label="Use System Theme"
-        onPress={enableSystemTheme}
-        isDarkTheme={isDarkTheme}
-      /> */}
     </AppSafeAreaView>
   );
 }

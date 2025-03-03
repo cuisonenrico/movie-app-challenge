@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useTheme } from "../context/themeContext";
@@ -16,11 +17,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Movie } from "@/models/movie";
 import { MovieDetailed } from "@/models/movie_detailed";
+import { useRouter } from "expo-router";
+
+import { ArrowLeftIcon } from "lucide-react-native";
 
 const movieDetails = () => {
   const { theme } = useTheme();
+  const router = useRouter();
 
-  var isDarkTheme = theme === "dark";
+  const isDarkTheme = theme === "dark";
   const screenSize = Dimensions.get("window");
 
   const [movie, setMovie] = useState<Movie>();
@@ -55,13 +60,13 @@ const movieDetails = () => {
 
   if (loading)
     return (
-      <ActivityIndicator
-        className={`${
-          isDarkTheme ? "bg-dark" : "bg-white"
-        }flex-1 items-center justify-center`}
-        size="large"
-        color="blue"
-      />
+      <View
+        className={`flex-1 items-center justify-center ${
+          isDarkTheme ? " bg-black" : " bg-white"
+        }`}
+      >
+        <ActivityIndicator size="large" color="blue" />
+      </View>
     );
   if (!movie || !movieDetailed) return <Text>No movie found</Text>;
 
@@ -69,7 +74,7 @@ const movieDetails = () => {
     <AppSafeAreaView isDarkTheme={isDarkTheme}>
       <AppStatusBar isDarkTheme={isDarkTheme} />
       <ScrollView
-        className={`${isDarkTheme ? "bg-dark" : "bg-white"}`}
+        className={`${isDarkTheme ? "bg-black" : "bg-white"}`}
         style={{ width: screenSize.width, height: screenSize.height }}
       >
         <View className="relative w-full h-700">
