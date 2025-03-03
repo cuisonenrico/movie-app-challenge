@@ -2,24 +2,25 @@ import { Button, TouchableOpacity, Text } from "react-native";
 import React from "react";
 import AppText from "./app_text";
 
-enum ButtonSize {
-  SMALL = "small",
-  MEDIUM = "medium",
-  LARGE = "large",
-}
+/// Determine usability of these properties if necessary
+// enum ButtonSize {
+//   SMALL = "small",
+//   MEDIUM = "medium",
+//   LARGE = "large",
+// }
 
 const AppButton = ({
   label,
-  color,
+  // color,
   onPress,
   isDarkTheme,
-  buttonSize,
-}: {
+}: // buttonSize,
+{
   label: string;
-  color?: string;
+  // color?: string;
   onPress: () => void;
   isDarkTheme: boolean;
-  buttonSize?: ButtonSize;
+  // buttonSize?: ButtonSize;
 }) => {
   return (
     <TouchableOpacity
@@ -31,8 +32,6 @@ const AppButton = ({
       <AppText text={label} isDarkTheme={isDarkTheme} customStyle="text-3xl" />
     </TouchableOpacity>
   );
-
-  //   <Button title={label} color={color} onPress={onPress} />
 };
 
 export default AppButton;
