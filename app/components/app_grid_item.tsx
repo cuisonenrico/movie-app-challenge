@@ -58,7 +58,11 @@ const AppGridItem = ({
   };
 
   useEffect(() => {
-    runFavoritesCheck();
+    const interval = setInterval(() => {
+      runFavoritesCheck();
+    }, 1000); // Runs every 5 seconds
+
+    return () => clearInterval(interval);
   }, [item, isFavorite]);
 
   return (

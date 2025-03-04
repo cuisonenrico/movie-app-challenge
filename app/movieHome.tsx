@@ -11,6 +11,7 @@ import { Link } from "expo-router";
 import DropDownPicker from "react-native-dropdown-picker";
 import DebouncedTextInput from "./components/debouncing_input";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Heart } from "lucide-react-native";
 
 export default function MovieHome() {
   const { theme, toggleTheme, enableSystemTheme, useSystem } = useTheme();
@@ -100,7 +101,7 @@ export default function MovieHome() {
               />
 
               <Link href={"/profile"}>
-                <View className="w-12 h-12 bg-blue-500 rounded-full"></View>
+                <Heart className="p-4" size={24} color={"red"} fill={"red"} />
               </Link>
             </View>
             <View className="flex-row w-full items-center ">
