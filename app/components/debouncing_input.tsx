@@ -4,10 +4,12 @@ import { TextInput, View, Text } from "react-native";
 
 interface DebouncedTextInputProps {
   onSearch: (query: string, hasChanged: boolean) => void;
+  hint?: string;
 }
 
 const DebouncedTextInput: React.FC<DebouncedTextInputProps> = ({
   onSearch,
+  hint = "Search...",
 }) => {
   const { theme } = useTheme();
 
@@ -32,12 +34,12 @@ const DebouncedTextInput: React.FC<DebouncedTextInputProps> = ({
   }, [input, debouncedValue, onSearch]);
 
   return (
-    <View className="p-4">
+    <View className="flex-1 p-2">
       <TextInput
         className={`border border-gray-300 rounded-lg p-3 text-lg  ${
           isDarkTheme ? "text-white" : "text-black"
         }`}
-        placeholder={`${debouncedValue == "" ? "Search..." : debouncedValue}`}
+        placeholder={`${debouncedValue == "" ? `${hint}` : debouncedValue}`}
         placeholderTextColor={`${isDarkTheme ? "white" : "black"}`}
         value={input}
         onChangeText={setInput}

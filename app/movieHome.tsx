@@ -8,7 +8,9 @@ import { useState } from "react";
 import axios from "axios";
 import { Movie } from "@/models/movie";
 import { Link } from "expo-router";
+import DropDownPicker from "react-native-dropdown-picker";
 import DebouncedTextInput from "./components/debouncing_input";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function MovieHome() {
   const { theme, toggleTheme, enableSystemTheme, useSystem } = useTheme();
@@ -20,13 +22,24 @@ export default function MovieHome() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState("movie");
+  const [year, selectedYear] = useState("");
+
+  const [typeItems, setTypeItems] = useState([
+    { label: "Movie", value: "movie" },
+    { label: "Series", value: "series" },
+    { label: "Episode", value: "episode" },
+  ]);
 
   const fetchMovies = async (query: string, hasChanged: boolean) => {
     try {
+      setLoading(true);
+
       const apiKey = process.env.EXPO_PUBLIC_API_KEY;
 
       const response = await axios.get(
-        `https://www.omdbapi.com/?apikey=${apiKey}&s=${query}&type=movie&page=${page}`
+        `https://www.omdbapi.com/?apikey=${apiKey}&s=${query}&type=${selectedType}&y=${year}&page=${page}`
       );
 
       if (response.data["Search"] != null) {
@@ -58,14 +71,6 @@ export default function MovieHome() {
     fetchMovies(trackedQuery, false);
   };
 
-  if (loading)
-    return (
-      <ActivityIndicator
-        className="flex-1 items-center justify-center"
-        size="large"
-        color="#0000ff"
-      />
-    );
   if (error) return <Text className="text-red-500">Error: {error}</Text>;
 
   return (
@@ -77,7 +82,7 @@ export default function MovieHome() {
         isDarkTheme={isDarkTheme}
       /> */}
       <FlatList
-        data={movies}
+        data={Array.from(new Set(movies))}
         renderItem={({ item }) => <AppGridItem item={item} />}
         keyExtractor={(item) => item.imdbID}
         numColumns={2} // Ensures at least 2 per row
@@ -87,7 +92,7 @@ export default function MovieHome() {
         onEndReachedThreshold={0.5} // Load when 50% of the screen remains
         ListHeaderComponent={() => (
           <View>
-            <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5">
+            <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5 mb-3">
               <AppText
                 text="MotionMe App"
                 isDarkTheme={isDarkTheme}
@@ -98,13 +103,85 @@ export default function MovieHome() {
                 <View className="w-12 h-12 bg-blue-500 rounded-full"></View>
               </Link>
             </View>
-            <View>
-              <DebouncedTextInput onSearch={fetchMovies} />
+            <View className="flex-row w-full items-center ">
+              <DebouncedTextInput hint="Search" onSearch={fetchMovies} />
+              <DebouncedTextInput
+                hint="Year"
+                onSearch={(query) => {
+                  selectedYear(query);
+                  fetchMovies(trackedQuery, true);
+                }}
+              />
+            </View>
+            <View
+              className={`p-2 text-lg  ${
+                isDarkTheme ? "text-white" : "text-black"
+              }`}
+              style={{
+                elevation: 5,
+                marginBottom: typeDropdownOpen == true ? 105 : 0,
+              }}
+            >
+              <DropDownPicker
+                onSelectItem={() => {
+                  fetchMovies(trackedQuery, true);
+                }}
+                open={typeDropdownOpen}
+                value={selectedType}
+                items={typeItems}
+                setOpen={setTypeDropdownOpen}
+                setValue={setSelectedType}
+                setItems={setTypeItems}
+                textStyle={{
+                  fontSize: 18,
+                  color: isDarkTheme ? "white" : "black",
+                }}
+                ArrowDownIconComponent={() => {
+                  return (
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={24}
+                      color={isDarkTheme ? "white" : "black"}
+                    /> // Custom Arrow Color
+                  ); // Custom Arrow Color
+                }}
+                ArrowUpIconComponent={() => {
+                  return (
+                    <MaterialIcons
+                      name="arrow-drop-up"
+                      size={24}
+                      color={isDarkTheme ? "white" : "black"}
+                    /> // Custom Arrow Color
+                  ); // Custom Arrow Color
+                }}
+                style={{
+                  backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
+                  height: 40,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  borderColor: "#eaeaea", // Light grey border
+                }}
+                dropDownContainerStyle={{
+                  backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  borderColor: "#eaeaea", // Light grey border
+                  zIndex: 5000,
+                }}
+              />
             </View>
           </View>
         )}
         ListFooterComponent={
-          loading ? <ActivityIndicator size="large" color="white" /> : null
+          loading ? (
+            <ActivityIndicator
+              className={`flex-1 items-center justify-center ${
+                isDarkTheme ? "bg-black" : "white"
+              }`}
+              size="large"
+              color="#0000ff"
+            />
+          ) : null
         }
       />
     </AppSafeAreaView>

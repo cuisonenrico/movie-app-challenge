@@ -13,10 +13,12 @@ import { useTheme } from "../context/themeContext";
 import AppText from "./components/app_text";
 import AppSafeAreaView from "./components/app_safe_area_view";
 import AppStatusBar from "./components/app_status_bar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Movie } from "@/models/movie";
 import { MovieDetailed } from "@/models/movie_detailed";
+import { Heart, Share2, ThumbsUp } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { addFavorite, isInFavorites } from "@/utils/favorite_util";
 
 const movieDetails = () => {
   const { theme } = useTheme();
@@ -29,61 +31,44 @@ const movieDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const addFavorite = async () => {
-    try {
-      // Get existing list from AsyncStorage
-      const storedMovies = await AsyncStorage.getItem("favoriteMovies");
+  const addFavoriteLocal = async () => {
+    if (movie == null) return;
+    await addFavorite(movie);
+    const isFavorite = await isInFavorites(movie);
+    setIsFavorite(isFavorite);
+  };
 
-      // Parse it (or default to an empty array if null)
-      const moviesList = storedMovies ? JSON.parse(storedMovies) : [];
+  const loadMovie = async () => {
+    const storedMovie = await AsyncStorage.getItem("selectedMovie");
 
-      // Add the new movie to the list
-      const newUpdatedMovies = Array.from(
-        new Set([...moviesList, movieDetailed])
-      );
+    if (storedMovie) {
+      var movieObj = JSON.parse(storedMovie);
+      setMovie(movieObj);
 
-      // Make sure it is unique
-      const uniqueMovies = newUpdatedMovies.filter(
-        (movie: { imdbID: string }, index: any, self: any[]) =>
-          index === self.findIndex((m) => m.imdbID === movie.imdbID)
-      );
+      try {
+        const apiKey = process.env.EXPO_PUBLIC_API_KEY;
 
-      // Save the updated list back to AsyncStorage
-
-      await AsyncStorage.setItem(
-        "favoriteMovies",
-        JSON.stringify(uniqueMovies)
-      );
-    } catch (error) {
-      console.error("Error adding movie:", error);
+        const response = await axios.get(
+          `https://www.omdbapi.com/?apikey=${apiKey}&i=${movieObj["imdbID"]}&plot=full`
+        );
+        setMovieDetailed(response.data);
+      } catch (err) {
+        setError(error);
+      } finally {
+        if (movie == null) return;
+        const isFav = await isInFavorites(movie);
+        setIsFavorite(isFav);
+        setLoading(false);
+      }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
-    const loadMovie = async () => {
-      const storedMovie = await AsyncStorage.getItem("selectedMovie");
-
-      if (storedMovie) {
-        var movieObj = JSON.parse(storedMovie);
-        setMovie(movieObj);
-        try {
-          const response = await axios.get(
-            `https://www.omdbapi.com/?apikey=b9bd48a6&i=${movieObj["imdbID"]}&plot=full`
-          );
-
-          setMovieDetailed(response.data);
-        } catch (err) {
-          setError(error);
-        } finally {
-          setLoading(false);
-        }
-      }
-      setLoading(false);
-    };
-
     loadMovie();
-  }, []);
+  }, [movie, movieDetailed]);
 
   if (loading)
     return (
@@ -238,29 +223,54 @@ const movieDetails = () => {
             ))}
           </ScrollView>
           {/* User Reviews */}
-          <AppText
-            text="User Reviews (from IMDB)"
-            isDarkTheme={isDarkTheme}
-            customStyle="text-lg font-semibold mb-2"
-          />
-          <AppText
-            text="Justice League is, unfortunately, plagued with post-production issues..."
-            isDarkTheme={isDarkTheme}
-            customStyle="text-gray-800 mb-4"
-          />
-          <View className="flex-row justify-between w-full max-w-xs mb-24">
-            <TouchableOpacity className="flex-1 items-center">
-              <Text className="text-gray-500">LIKE</Text>
-            </TouchableOpacity>
+          <View className="mt-8">
+            <AppText
+              text="User Reviews (from IMDB)"
+              isDarkTheme={isDarkTheme}
+              customStyle="text-lg font-semibold mb-2"
+            />
+            <AppText
+              text="Justice League is, unfortunately, plagued with post-production issues..."
+              isDarkTheme={isDarkTheme}
+              customStyle="text-gray-800 mb-4"
+            />
+          </View>
+          <View className="flex-row justify-center w-full mb-24 mt-12 items-center align-center">
             <TouchableOpacity
-              onPress={addFavorite}
-              className="flex-1 items-center"
+              onPress={() => {}}
+              className={`flex-1 items-center justify-center ${
+                isDarkTheme ? "bg-black" : "bg-white"
+              }`}
               style={{ height: 50 }}
             >
-              <Text className="text-gray-500">FAVORITE</Text>
+              <ThumbsUp size={24} color={isDarkTheme ? "white" : "gray"} />
+              <Text className="text-gray-500 mt-1">LIKE</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="flex-1 items-center">
-              <Text className="text-gray-500">SHARE</Text>
+            <TouchableOpacity
+              onPress={addFavoriteLocal}
+              className={`flex-1 items-center justify-center ${
+                isDarkTheme ? "bg-black" : "bg-white"
+              }`}
+              style={{ height: 50 }}
+            >
+              <Heart
+                size={24}
+                color={
+                  isFavorite ? "red" : `${isDarkTheme ? "white" : "black"}`
+                }
+                fill={isFavorite ? "red" : "transparent"}
+              />
+              <Text className="text-gray-500 mt-1">FAVORITE</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {}}
+              className={`flex-1 items-center justify-center ${
+                isDarkTheme ? "bg-black" : "bg-white"
+              }`}
+              style={{ height: 50 }}
+            >
+              <Share2 size={24} color={isDarkTheme ? "white" : "gray"} />
+              <Text className="text-gray-500 mt-1">SHARE</Text>
             </TouchableOpacity>
           </View>
         </View>
