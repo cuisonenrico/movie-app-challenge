@@ -20,8 +20,14 @@ This is a simple app utilizing [OMDBApi](https://www.omdbapi.com/)
    ```bash
    npm install
    ```
+   
+2. Install Nativewind dependency
+   
+   ```bash
+   npm install nativewind@^2.0.0 tailwindcss@3.3.2
+   ```
 
-2. Start the app
+3. Start the app
    ```bash
     npx expo start
    ```
