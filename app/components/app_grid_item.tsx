@@ -1,9 +1,10 @@
 import { View, Text, Dimensions, Image, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Movie } from "@/models/movie";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Heart } from "lucide-react-native"; // Lucide icons are lightweight
+import { addFavorite, isInFavorites } from "@/utils/favorite_util";
 
 const AppGridItem = ({
   item,
@@ -16,7 +17,6 @@ const AppGridItem = ({
   const itemWidth = screenWidth / 2 - 20; // 2 columns with margin
   const [imageError, setImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [favorites, setFavorites] = useState<Movie[]>([]);
 
   const router = useRouter();
 
@@ -25,75 +25,14 @@ const AppGridItem = ({
     router.push("/movieDetails");
   };
 
-  useEffect(() => {
-    isInFavorites();
-  });
-
-  const isInFavorites = async () => {
-    try {
-      const storedMovies = await AsyncStorage.getItem("favoriteMovies");
-      const moviesList = storedMovies ? JSON.parse(storedMovies) : [];
-
-      const uniqueMovies = moviesList.filter(
-        (movie: { imdbID: string }, index: any, self: any[]) =>
-          index === self.findIndex((m) => m.imdbID === movie.imdbID)
-      );
-      setFavorites(() => uniqueMovies);
-
-      const isFavorite = favorites.some(
-        (favorite) => favorite.imdbID == item.imdbID
-      );
-
-      setIsFavorite(isFavorite);
-
-      return uniqueMovies;
-    } catch (error) {
-      console.error("Error retrieving movies:", error);
-      return [];
-    }
+  const runFavoritesCheck = async () => {
+    const isFav = await isInFavorites(item);
+    setIsFavorite(isFav);
   };
-
-  const addFavorite = async () => {
-    if (!isFavorite) {
-      try {
-        // Get existing list from AsyncStorage
-        const storedMovies = await AsyncStorage.getItem("favoriteMovies");
-
-        // Parse it (or default to an empty array if null)
-        const moviesList = storedMovies ? JSON.parse(storedMovies) : [];
-
-        // Add the new movie to the list
-        const newUpdatedMovies = Array.from(new Set([...moviesList, item]));
-
-        // Make sure it is unique
-        const uniqueMovies = newUpdatedMovies.filter(
-          (movie: { imdbID: string }, index: any, self: any[]) =>
-            index === self.findIndex((m) => m.imdbID === movie.imdbID)
-        );
-
-        // Save the updated list back to AsyncStorage
-
-        await AsyncStorage.setItem(
-          "favoriteMovies",
-          JSON.stringify(uniqueMovies)
-        );
-        isInFavorites();
-      } catch (error) {
-        console.error("Error adding movie:", error);
-      }
-    } else {
-      // Make sure it is unique and remove the selected item
-      const uniqueMovies = favorites.filter(
-        (fav) => fav.imdbID !== item.imdbID
-      );
-
-      // Save the updated list back to AsyncStorage
-      await AsyncStorage.setItem(
-        "favoriteMovies",
-        JSON.stringify(uniqueMovies)
-      );
-      isInFavorites();
-    }
+  const addFavoriteLocal = async () => {
+    if (item == null) return;
+    await addFavorite(item);
+    runFavoritesCheck();
   };
 
   const favoriteIcon = () => {
@@ -103,7 +42,7 @@ const AppGridItem = ({
           className="absolute top-8 right-4 p-1 rounded-full bg-white"
           onPress={(e) => {
             e.stopPropagation();
-            addFavorite();
+            addFavoriteLocal();
           }}
         >
           <Heart
@@ -117,6 +56,14 @@ const AppGridItem = ({
       return;
     }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      runFavoritesCheck();
+    }, 1000); // Runs every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [item, isFavorite]);
 
   return (
     <View className="relative">

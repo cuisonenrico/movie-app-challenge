@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import React from "react";
 import AppSafeAreaView from "./components/app_safe_area_view";
 import { useEffect, useState } from "react";
@@ -44,14 +44,16 @@ const Profile = () => {
         onPress={enableSystemTheme}
         isDarkTheme={isDarkTheme}
       /> */}
-      <FlatList
-        data={movies}
-        renderItem={({ item }) => <AppGridItem item={item} />}
-        keyExtractor={(item) => item.imdbID}
-        numColumns={2} // Ensures at least 2 per row
-        horizontal={false} // Restricts horizontal scrolling (default)
-        scrollEnabled={true} // Ensures vertical scrolling works
-      />
+      <View className="flex-1">
+        <FlatList
+          data={movies}
+          renderItem={({ item }) => <AppGridItem item={item} />}
+          keyExtractor={(item) => item.imdbID}
+          numColumns={2} // Ensures at least 2 per row
+          horizontal={false} // Restricts horizontal scrolling (default)
+          scrollEnabled={true} // Ensures vertical scrolling works
+        />
+      </View>
     </AppSafeAreaView>
   );
 };
