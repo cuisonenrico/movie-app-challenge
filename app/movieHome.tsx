@@ -27,7 +27,11 @@ export default function MovieHome() {
       const response = await axios.get(
         `https://www.omdbapi.com/?apikey=b9bd48a6&s=${query}&type=movie&page=${page}`
       );
+
       if (response.data["Search"] != null) {
+        // Sets the movies from API request
+        // If query changed, reset the state and only show movies from new query.
+        // Otherwise, append the list of the query to the existing list in state
         setMovies((prevMovies) => {
           const appendMovies = hasChanged === true ? [] : prevMovies;
 
@@ -35,7 +39,10 @@ export default function MovieHome() {
             new Set([...appendMovies, ...response.data["Search"]])
           );
         });
-        setPage((prevPage) => (hasChanged === true ? 1 : prevPage + 1)); // Increase page number
+
+        // Increase page number but reverts back to [1] when query has changed
+        setPage((prevPage) => (hasChanged === true ? 1 : prevPage + 1));
+        // Stores the query value in state so we can load more items from this query
         setQuery(query);
       }
     } catch (err) {
@@ -45,6 +52,7 @@ export default function MovieHome() {
     }
   };
 
+  // Handles query when user is at end of scroll
   const onEndScroll = () => {
     fetchMovies(trackedQuery, false);
   };
