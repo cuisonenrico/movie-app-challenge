@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Pressable,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useTheme } from "../context/themeContext";
@@ -30,6 +29,38 @@ const movieDetails = () => {
   const [movieDetailed, setMovieDetailed] = useState<MovieDetailed>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const addFavorite = async () => {
+    try {
+      // Get existing list from AsyncStorage
+      const storedMovies = await AsyncStorage.getItem("favoriteMovies");
+
+      // Parse it (or default to an empty array if null)
+      const moviesList = storedMovies ? JSON.parse(storedMovies) : [];
+
+      // Add the new movie to the list
+      const newUpdatedMovies = Array.from(
+        new Set([...moviesList, movieDetailed])
+      );
+
+      // Make sure it is unique
+      const uniqueMovies = newUpdatedMovies.filter(
+        (movie: { imdbID: string }, index: any, self: any[]) =>
+          index === self.findIndex((m) => m.imdbID === movie.imdbID)
+      );
+
+      // Save the updated list back to AsyncStorage
+
+      await AsyncStorage.setItem(
+        "favoriteMovies",
+        JSON.stringify(uniqueMovies)
+      );
+    } catch (error) {
+      console.error("Error adding movie:", error);
+    }
+
+    router.push("/movieDetails");
+  };
 
   useEffect(() => {
     const loadMovie = async () => {
@@ -201,7 +232,11 @@ const movieDetails = () => {
             <TouchableOpacity className="flex-1 items-center">
               <Text className="text-gray-500">LIKE</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="flex-1 items-center">
+            <TouchableOpacity
+              onPress={addFavorite}
+              className="flex-1 items-center"
+              style={{ height: 50 }}
+            >
               <Text className="text-gray-500">FAVORITE</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-1 items-center">
