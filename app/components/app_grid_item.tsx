@@ -1,17 +1,15 @@
 import { View, Text, Dimensions, Image } from "react-native";
 import React from "react";
 import { Movie } from "@/models/movie";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AppGridItem = ({ item }: { item: Movie }) => {
   const screenWidth = Dimensions.get("window").width;
   const itemWidth = screenWidth / 2 - 20; // 2 columns with margin
 
-  const router = useRouter();
   const handlePress = async () => {
     await AsyncStorage.setItem("selectedMovie", JSON.stringify(item)); // Save to AsyncStorage
-    router.push("/movieDetails");
   };
 
   return (
