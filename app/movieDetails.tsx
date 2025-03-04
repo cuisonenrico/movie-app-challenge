@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Linking,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useTheme } from "../context/themeContext";
@@ -96,6 +97,13 @@ const movieDetails = () => {
     );
   if (!movie || !movieDetailed) return <Text>No movie found</Text>;
 
+  const openMediaPlayer = () => {
+    const mediaUrl = "s"; // Replace with your media file URL
+    Linking.openURL(mediaUrl).catch((err) =>
+      console.error("Couldn't open media player", err)
+    );
+  };
+
   return (
     <AppSafeAreaView isDarkTheme={isDarkTheme}>
       <AppStatusBar isDarkTheme={isDarkTheme} />
@@ -104,7 +112,7 @@ const movieDetails = () => {
         style={{ width: screenSize.width, height: screenSize.height }}
       >
         <View className="relative w-full h-700">
-          <TouchableOpacity activeOpacity={0.8}>
+          <TouchableOpacity activeOpacity={0.8} onPress={openMediaPlayer}>
             <Image
               resizeMethod="scale"
               resizeMode="cover"
