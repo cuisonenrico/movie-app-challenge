@@ -8,6 +8,9 @@ import { useTheme } from "../context/themeContext";
 import AppGridItem from "./components/app_grid_item";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MovieDetailed } from "@/models/movie_detailed";
+import { Link } from "expo-router";
+import { Heart } from "lucide-react-native";
+import AppText from "./components/app_text";
 
 const Profile = () => {
   const { theme } = useTheme();
@@ -36,6 +39,14 @@ const Profile = () => {
   useEffect(() => {
     getMoviesFromStorage();
   }, []);
+  function selectedYear(query: any) {
+    throw new Error("Function not implemented.");
+  }
+
+  function fetchMovies(trackedQuery: any, arg1: boolean) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <AppSafeAreaView isDarkTheme={isDarkTheme}>
       <AppStatusBar isDarkTheme={isDarkTheme} />
@@ -52,6 +63,16 @@ const Profile = () => {
           numColumns={2} // Ensures at least 2 per row
           horizontal={false} // Restricts horizontal scrolling (default)
           scrollEnabled={true} // Ensures vertical scrolling works
+          ListHeaderComponent={() => (
+            <View className="flex flex-row pr-4 pl-4 pt-4 w-screen space-x-2 mb-3">
+              <AppText
+                text="Favorites"
+                isDarkTheme={isDarkTheme}
+                customStyle="text-3xl font-bold"
+              />
+              <Heart className="p-5" size={32} color={"red"} fill={"red"} />
+            </View>
+          )}
         />
       </View>
     </AppSafeAreaView>

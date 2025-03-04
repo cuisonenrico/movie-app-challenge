@@ -1,4 +1,11 @@
-import { View, Text, Dimensions, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { Movie } from "@/models/movie";
 import { useRouter } from "expo-router";
@@ -17,6 +24,7 @@ const AppGridItem = ({
   const itemWidth = screenWidth / 2 - 20; // 2 columns with margin
   const [imageError, setImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isImageLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
 
@@ -73,9 +81,18 @@ const AppGridItem = ({
         style={{ width: itemWidth }}
       >
         <View
-          className="flex-4 m-2 p-1 rounded-lg items-center"
+          className="flex-4 m-2 p-1 rounded-lg items-center align-center justify-center"
           style={{ width: itemWidth }}
         >
+          {isImageLoading && (
+            <ActivityIndicator
+              size="large"
+              color="#007AFF"
+              style={{
+                position: "absolute",
+              }}
+            />
+          )}
           <Image
             className="rounded-lg"
             source={
@@ -83,6 +100,7 @@ const AppGridItem = ({
                 ? require("../../assets/placeholder.png") // Local placeholder image
                 : { uri: item.Poster }
             }
+            onLoad={() => setIsLoading(false)} // Hide loader when loaded
             onError={() => setImageError(true)}
             style={{ width: itemWidth, height: 300, marginVertical: 0 }}
             resizeMode="cover"
