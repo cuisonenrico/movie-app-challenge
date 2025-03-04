@@ -82,109 +82,115 @@ export default function MovieHome() {
         onPress={enableSystemTheme}
         isDarkTheme={isDarkTheme}
       /> */}
-      <FlatList
-        data={Array.from(new Set(movies))}
-        renderItem={({ item }) => <AppGridItem item={item} />}
-        keyExtractor={(item) => item.imdbID}
-        numColumns={2} // Ensures at least 2 per row
-        horizontal={false} // Restricts horizontal scrolling (default)
-        scrollEnabled={true} // Ensures vertical scrolling works
-        onEndReached={onEndScroll} // Load more when reaching the bottom
-        onEndReachedThreshold={0.5} // Load when 50% of the screen remains
-        ListHeaderComponent={() => (
-          <View>
-            <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5 mb-3">
-              <AppText
-                text="MotionMe App"
-                isDarkTheme={isDarkTheme}
-                customStyle="text-3xl font-bold"
-              />
+      <View className="flex-1">
+        <FlatList
+          // data={Array.from(new Set(movies))}
+          data={movies.filter(
+            (item, index, self) =>
+              index === self.findIndex((obj) => obj.imdbID === item.imdbID)
+          )}
+          renderItem={({ item }) => <AppGridItem item={item} />}
+          keyExtractor={(item) => item.Poster}
+          numColumns={2} // Ensures at least 2 per row
+          horizontal={false} // Restricts horizontal scrolling (default)
+          scrollEnabled={true} // Ensures vertical scrolling works
+          onEndReached={onEndScroll} // Load more when reaching the bottom
+          onEndReachedThreshold={0.5} // Load when 50% of the screen remains
+          ListHeaderComponent={() => (
+            <View>
+              <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5 mb-3">
+                <AppText
+                  text="MotionMe App"
+                  isDarkTheme={isDarkTheme}
+                  customStyle="text-3xl font-bold"
+                />
 
-              <Link href={"/profile"}>
-                <Heart className="p-4" size={24} color={"red"} fill={"red"} />
-              </Link>
-            </View>
-            <View className="flex-row w-full items-center ">
-              <DebouncedTextInput hint="Search" onSearch={fetchMovies} />
-              <DebouncedTextInput
-                hint="Year"
-                onSearch={(query) => {
-                  selectedYear(query);
-                  fetchMovies(trackedQuery, true);
-                }}
-              />
-            </View>
-            <View
-              className={`p-2 text-lg  ${
-                isDarkTheme ? "text-white" : "text-black"
-              }`}
-              style={{
-                elevation: 5,
-                marginBottom: typeDropdownOpen == true ? 105 : 0,
-              }}
-            >
-              <DropDownPicker
-                onSelectItem={() => {
-                  fetchMovies(trackedQuery, true);
-                }}
-                open={typeDropdownOpen}
-                value={selectedType}
-                items={typeItems}
-                setOpen={setTypeDropdownOpen}
-                setValue={setSelectedType}
-                setItems={setTypeItems}
-                textStyle={{
-                  fontSize: 18,
-                  color: isDarkTheme ? "white" : "black",
-                }}
-                ArrowDownIconComponent={() => {
-                  return (
-                    <MaterialIcons
-                      name="arrow-drop-down"
-                      size={24}
-                      color={isDarkTheme ? "white" : "black"}
-                    /> // Custom Arrow Color
-                  ); // Custom Arrow Color
-                }}
-                ArrowUpIconComponent={() => {
-                  return (
-                    <MaterialIcons
-                      name="arrow-drop-up"
-                      size={24}
-                      color={isDarkTheme ? "white" : "black"}
-                    /> // Custom Arrow Color
-                  ); // Custom Arrow Color
-                }}
+                <Link href={"/favorites"}>
+                  <Heart className="p-4" size={24} color={"red"} fill={"red"} />
+                </Link>
+              </View>
+              <View className="flex-row w-full items-center ">
+                <DebouncedTextInput hint="Search" onSearch={fetchMovies} />
+                <DebouncedTextInput
+                  hint="Year"
+                  onSearch={(query) => {
+                    selectedYear(query);
+                    fetchMovies(trackedQuery, true);
+                  }}
+                />
+              </View>
+              <View
+                className={`p-2 text-lg  ${
+                  isDarkTheme ? "text-white" : "text-black"
+                }`}
                 style={{
-                  backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
-                  height: 40,
-                  borderWidth: 1,
-                  borderRadius: 5,
-                  borderColor: "#eaeaea", // Light grey border
+                  elevation: 5,
+                  marginBottom: typeDropdownOpen == true ? 105 : 0,
                 }}
-                dropDownContainerStyle={{
-                  backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
-                  borderWidth: 1,
-                  borderRadius: 5,
-                  borderColor: "#eaeaea", // Light grey border
-                  zIndex: 5000,
-                }}
-              />
+              >
+                <DropDownPicker
+                  onSelectItem={() => {
+                    fetchMovies(trackedQuery, true);
+                  }}
+                  open={typeDropdownOpen}
+                  value={selectedType}
+                  items={typeItems}
+                  setOpen={setTypeDropdownOpen}
+                  setValue={setSelectedType}
+                  setItems={setTypeItems}
+                  textStyle={{
+                    fontSize: 18,
+                    color: isDarkTheme ? "white" : "black",
+                  }}
+                  ArrowDownIconComponent={() => {
+                    return (
+                      <MaterialIcons
+                        name="arrow-drop-down"
+                        size={24}
+                        color={isDarkTheme ? "white" : "black"}
+                      /> // Custom Arrow Color
+                    ); // Custom Arrow Color
+                  }}
+                  ArrowUpIconComponent={() => {
+                    return (
+                      <MaterialIcons
+                        name="arrow-drop-up"
+                        size={24}
+                        color={isDarkTheme ? "white" : "black"}
+                      /> // Custom Arrow Color
+                    ); // Custom Arrow Color
+                  }}
+                  style={{
+                    backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
+                    height: 40,
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: "#eaeaea", // Light grey border
+                  }}
+                  dropDownContainerStyle={{
+                    backgroundColor: isDarkTheme ? "bg-white" : "bg-black",
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: "#eaeaea", // Light grey border
+                    zIndex: 5000,
+                  }}
+                />
+              </View>
             </View>
-          </View>
-        )}
-        ListFooterComponent={
-          loading ? (
-            <ActivityIndicator
-              className={`flex-1 items-center justify-center ${
-                isDarkTheme ? "bg-black" : "white"
-              }`}
-              size="large"
-              color="#0000ff"
-            />
-          ) : null
-        }
-      />
+          )}
+          ListFooterComponent={
+            loading ? (
+              <ActivityIndicator
+                className={`flex-1 items-center justify-center ${
+                  isDarkTheme ? "bg-black" : "white"
+                }`}
+                size="large"
+                color="#0000ff"
+              />
+            ) : null
+          }
+        />
+      </View>
     </AppSafeAreaView>
   );
 }

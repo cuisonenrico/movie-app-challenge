@@ -65,7 +65,7 @@ export const isInFavorites = async (movie: Movie): Promise<boolean> => {
   var isFavorite;
   try {
     const storedFavorites = await AsyncStorage.getItem("favoriteMovies");
-    const moviesList = JSON.parse(storedFavorites!);
+    const moviesList = JSON.parse(storedFavorites ?? "[]");
 
     const favoriteMovies = moviesList.filter(
       (movie: { imdbID: string }, index: any, self: any[]) =>

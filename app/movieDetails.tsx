@@ -111,7 +111,7 @@ const movieDetails = () => {
             />
           </TouchableOpacity>
         </View>
-        <View className="relative -top-14 bottom-0 left-0 right-0 bg-transparent flex-row items-center p-4">
+        <View className="flex-row relative -top-14 bottom-0 left-0 right-0 bg-transparent flex-row items-center p-4">
           <Image
             className="w-20 h-30 rounded-lg"
             resizeMode="cover"
@@ -121,13 +121,13 @@ const movieDetails = () => {
                 : { uri: movieDetailed.Poster }
             }
             onError={() => setImageError(true)}
-            style={{ width: 120, height: 180, marginVertical: 0 }}
+            style={{ width: 100, height: 180, marginVertical: 0 }}
           />
-          <View className="relative mt-12 ml-4 bottom-0">
+          <View className="flex-1 relative mt-12 ml-4 bottom-0">
             <AppText
               text={movieDetailed.Title}
               isDarkTheme={isDarkTheme}
-              customStyle="flex-wrap-reverse flex text-2xl font-bold mr-12"
+              customStyle="flex-wrap-reverse flex text-2xl font-bold mr-12 "
             />
 
             <AppText
