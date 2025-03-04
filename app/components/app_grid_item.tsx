@@ -33,7 +33,7 @@ const AppGridItem = ({ item }: { item: Movie }) => {
         <View
           style={{
             position: "absolute",
-            bottom: 0,
+            bottom: 10,
             width: "100%",
             backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark overlay
             padding: 8,
@@ -41,11 +41,7 @@ const AppGridItem = ({ item }: { item: Movie }) => {
             borderBottomRightRadius: 10,
           }}
         >
-          <Text
-            style={{ color: "white", fontWeight: "bold", textAlign: "center" }}
-          >
-            {item.Title}
-          </Text>
+          <Text className="text-white font-bold text-center">{item.Title}</Text>
         </View>
       </View>
     </Link>

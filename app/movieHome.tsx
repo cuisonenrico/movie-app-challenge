@@ -9,6 +9,7 @@ import axios from "axios";
 import { Movie } from "@/models/movie";
 import { Link } from "expo-router";
 import AppButton from "./components/app_button";
+import DebouncedTextInput from "./components/debouncing_input";
 
 export default function MovieHome() {
   const { theme, toggleTheme, enableSystemTheme, useSystem } = useTheme();
@@ -16,26 +17,37 @@ export default function MovieHome() {
   var isDarkTheme = theme === "dark";
 
   const [page, setPage] = useState(1); // Tracks current page for pagination
-  const [movies, setMovie] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [trackedQuery, setQuery] = useState("Marvel"); // Maintains query parameter for on end scroll request
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (query: string, hasChanged: boolean) => {
     try {
       const response = await axios.get(
-        `https://www.omdbapi.com/?apikey=b9bd48a6&s=Marvel&type=movie&page=${page}`
+        `https://www.omdbapi.com/?apikey=b9bd48a6&s=${query}&type=movie&page=${page}`
       );
-      setMovie((prevMovies) => [...prevMovies, ...response.data["Search"]]);
-      setPage((prevPage) => prevPage + 1); // Increase page number
+      if (response.data["Search"] != null) {
+        setMovies((prevMovies) => {
+          const appendMovies = hasChanged === true ? [] : prevMovies;
+
+          return Array.from(
+            new Set([...appendMovies, ...response.data["Search"]])
+          );
+        });
+        setPage((prevPage) => (hasChanged === true ? 1 : prevPage + 1)); // Increase page number
+        setQuery(query);
+      }
     } catch (err) {
       setError(error);
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchMovies();
-  }, []);
+
+  const onEndScroll = () => {
+    fetchMovies(trackedQuery, false);
+  };
 
   if (loading)
     return (
@@ -62,19 +74,24 @@ export default function MovieHome() {
         numColumns={2} // Ensures at least 2 per row
         horizontal={false} // Restricts horizontal scrolling (default)
         scrollEnabled={true} // Ensures vertical scrolling works
-        onEndReached={fetchMovies} // Load more when reaching the bottom
+        onEndReached={onEndScroll} // Load more when reaching the bottom
         onEndReachedThreshold={0.5} // Load when 50% of the screen remains
         ListHeaderComponent={() => (
-          <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5">
-            <AppText
-              text="MotionMe App"
-              isDarkTheme={isDarkTheme}
-              customStyle="text-3xl font-bold"
-            />
+          <View>
+            <View className="flex flex-row justify-between pr-4 pl-4 pt-4 w-screen space-x-5">
+              <AppText
+                text="MotionMe App"
+                isDarkTheme={isDarkTheme}
+                customStyle="text-3xl font-bold"
+              />
 
-            <Link href={"/profile"}>
-              <View className="w-12 h-12 bg-blue-500 rounded-full"></View>
-            </Link>
+              <Link href={"/profile"}>
+                <View className="w-12 h-12 bg-blue-500 rounded-full"></View>
+              </Link>
+            </View>
+            <View>
+              <DebouncedTextInput onSearch={fetchMovies} />
+            </View>
           </View>
         )}
         ListFooterComponent={
