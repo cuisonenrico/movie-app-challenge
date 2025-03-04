@@ -4,11 +4,10 @@ import AppSafeAreaView from "./components/app_safe_area_view";
 import AppStatusBar from "./components/app_status_bar";
 import { FlatList, Text, ActivityIndicator, View, Image } from "react-native";
 import AppGridItem from "./components/app_grid_item";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Movie } from "@/models/movie";
 import { Link } from "expo-router";
-import AppButton from "./components/app_button";
 import DebouncedTextInput from "./components/debouncing_input";
 
 export default function MovieHome() {
@@ -24,8 +23,10 @@ export default function MovieHome() {
 
   const fetchMovies = async (query: string, hasChanged: boolean) => {
     try {
+      const apiKey = process.env.EXPO_PUBLIC_API_KEY;
+
       const response = await axios.get(
-        `https://www.omdbapi.com/?apikey=b9bd48a6&s=${query}&type=movie&page=${page}`
+        `https://www.omdbapi.com/?apikey=${apiKey}&s=${query}&type=movie&page=${page}`
       );
 
       if (response.data["Search"] != null) {

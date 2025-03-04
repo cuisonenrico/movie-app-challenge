@@ -66,12 +66,14 @@ const movieDetails = () => {
     const loadMovie = async () => {
       const storedMovie = await AsyncStorage.getItem("selectedMovie");
 
+      const apiKey = process.env.EXPO_PUBLIC_API_KEY;
+
       if (storedMovie) {
         var movieObj = JSON.parse(storedMovie);
         setMovie(movieObj);
         try {
           const response = await axios.get(
-            `https://www.omdbapi.com/?apikey=b9bd48a6&i=${movieObj["imdbID"]}&plot=full`
+            `https://www.omdbapi.com/?apikey=${apiKey}&i=${movieObj["imdbID"]}&plot=full`
           );
 
           setMovieDetailed(response.data);
