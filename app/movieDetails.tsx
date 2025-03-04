@@ -16,11 +16,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Movie } from "@/models/movie";
 import { MovieDetailed } from "@/models/movie_detailed";
-import { useRouter } from "expo-router";
 
 const movieDetails = () => {
   const { theme } = useTheme();
-  const router = useRouter();
 
   const isDarkTheme = theme === "dark";
   const screenSize = Dimensions.get("window");
@@ -29,6 +27,7 @@ const movieDetails = () => {
   const [movieDetailed, setMovieDetailed] = useState<MovieDetailed>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imageError, setImageError] = useState(false);
 
   const addFavorite = async () => {
     try {
@@ -58,22 +57,18 @@ const movieDetails = () => {
     } catch (error) {
       console.error("Error adding movie:", error);
     }
-
-    router.push("/movieDetails");
   };
 
   useEffect(() => {
     const loadMovie = async () => {
       const storedMovie = await AsyncStorage.getItem("selectedMovie");
 
-      const apiKey = process.env.EXPO_PUBLIC_API_KEY;
-
       if (storedMovie) {
         var movieObj = JSON.parse(storedMovie);
         setMovie(movieObj);
         try {
           const response = await axios.get(
-            `https://www.omdbapi.com/?apikey=${apiKey}&i=${movieObj["imdbID"]}&plot=full`
+            `https://www.omdbapi.com/?apikey=b9bd48a6&i=${movieObj["imdbID"]}&plot=full`
           );
 
           setMovieDetailed(response.data);
@@ -112,16 +107,27 @@ const movieDetails = () => {
           <TouchableOpacity activeOpacity={0.8}>
             <Image
               resizeMethod="scale"
-              source={{ uri: movieDetailed.Poster }}
-              className=""
+              resizeMode="cover"
+              source={
+                imageError
+                  ? require("../assets/placeholder.png") // Local placeholder image
+                  : { uri: movieDetailed.Poster }
+              }
+              onError={() => setImageError(true)}
               style={{ width: screenSize.width, height: 500 }}
             />
           </TouchableOpacity>
         </View>
         <View className="relative -top-14 bottom-0 left-0 right-0 bg-transparent flex-row items-center p-4">
           <Image
-            source={{ uri: movieDetailed.Poster }} // Replace with the proper image URL
             className="w-20 h-30 rounded-lg"
+            resizeMode="cover"
+            source={
+              imageError
+                ? require("../assets/placeholder.png") // Local placeholder image
+                : { uri: movieDetailed.Poster }
+            }
+            onError={() => setImageError(true)}
             style={{ width: 120, height: 180, marginVertical: 0 }}
           />
           <View className="relative mt-12 ml-4 bottom-0">
@@ -165,10 +171,11 @@ const movieDetails = () => {
           />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movieDetailed.Actors.split(",").map((actor, index) => (
-              <View key={index} className="mr-4">
+              <View key={index} className="mr-4 items-center">
                 <Image
-                  source={{ uri: `https://.../${actor}` }} // Replace with the proper image URL
-                  className="w-16 h-24 rounded-lg"
+                  resizeMode="cover"
+                  source={require("../assets/placeholder.png")}
+                  className="w-24 h-24 rounded-lg"
                 />
                 <AppText
                   text={actor}
@@ -183,10 +190,11 @@ const movieDetails = () => {
               </View>
             ))}
             {movieDetailed.Director.split(",").map((director, index) => (
-              <View key={index} className="mr-4">
+              <View key={index} className="mr-4 items-center">
                 <Image
-                  source={{ uri: `https://.../${director}` }} // Replace with the proper image URL
-                  className="w-16 h-24 rounded-lg"
+                  resizeMode="cover"
+                  source={require("../assets/placeholder.png")}
+                  className="w-24 h-24 rounded-lg"
                 />
                 <AppText
                   text={director}
@@ -201,10 +209,12 @@ const movieDetails = () => {
               </View>
             ))}
             {movieDetailed.Writer.split(",").map((writer, index) => (
-              <View key={index} className="mr-4">
+              <View key={index} className="mr-4 items-center">
                 <Image
-                  source={{ uri: `https://.../${writer}` }} // Replace with the proper image URL
-                  className="w-16 h-24 rounded-lg"
+                  resizeMode="cover"
+                  source={require("../assets/placeholder.png")}
+                  onError={() => setImageError(true)}
+                  className="w-24 h-24 rounded-lg"
                 />
                 <AppText
                   text={writer}
